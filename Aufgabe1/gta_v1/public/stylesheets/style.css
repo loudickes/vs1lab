@@ -47,7 +47,11 @@ a {
 /* ### TODO ### Styles for other HTML elements */
 
 /* ... your code here ... */
-
+fieldset {
+  margin-top: 2vh;
+  padding: 2vh 1.5vw;
+  width: 100%;
+}
 
 /* Grid styles (no changes required) */
 
@@ -110,28 +114,181 @@ a {
 /* ### TODO ### Styles for Header Component */
 
 /* ... your code here ... */
+header {
+  background-color: whitesmoke;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 18vh;
+  padding: 0 4vw 0 4vw;
+  border-bottom: 0.5px solid black;
+}
+
+header img {
+  width: 60px;
+}
 
 
 /* ### TODO ### Styles for Main Component */
 
 /* ... your code here ... */
-
+main {
+  display: flex;
+  justify-content: space-around;
+  padding: 4vh 2vw;
+}
 
 /* ### TODO ### Styles for Tagging component */
 
 /* ... your code here ... */
+.tagging {
+  width: 25%;
+}
 
+.tagging input {
+  display: block;
+  width: 100%;
+  margin: 1vh 0 3vh 0;
+  padding: 1.5vh 0.5vw;
+}
+
+.tagging input:nth-last-child(1) {
+  margin-bottom: 0;
+}
 
 /* ### TODO ### Styles for Discovery component */
 
 /* ... your code here ... */
+.discovery {
+  width: 65%;
+}
 
+.discovery input {
+  display: block;
+  width: 25%;
+  margin: 1vh 0 3vh 0;
+  padding: 1.5vh 0.5vw;
+}
+
+.discovery input:nth-last-child(1) {
+  margin-bottom: 0;
+}
+
+.discovery__wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3vh;
+}
+
+li {
+  background-color: whitesmoke;
+  color: blue;
+  padding: 3vh 1vw;
+  border: 0.5px solid black;
+  list-style-type: none;
+  margin-bottom: 2vh;
+}
+
+#mapView {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 
 /* ### TODO ### Styles for Footer Component */
 
 /* ... your code here ... */
+footer {
+  background-color: whitesmoke;
+  display: flex;
+  align-items: center;
+  min-height: 9.4vh;
+  border-top: 0.5px solid black;
+  padding-left: 2vw;
+}
 
 
 /* ### TODO ### Media Queries */
 
 /* ... your code here ... */
+@media only screen and (max-width: 430px) {
+  header {
+    display: block;
+    text-align: center;
+    row-gap: 5vh;
+    padding: 2.5vh 0;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tagging {
+    width: 90%;
+    margin: auto;
+  }
+
+  h1 {
+    font-size: 45px;
+    padding: 1vh 0;
+  }
+
+  h2 {
+    font-size: 40px;
+    text-align: center;
+  }
+
+  label {
+    font-size: 30px;
+  }
+
+  legend {
+    font-size: 35px;
+    margin: auto;
+  }
+
+  input {
+    width: 100% !important;
+    font-size: 30px;
+  }
+
+  li {
+    font-size: 30px;
+    text-align: center;
+  }
+
+  nav {
+    font-size: 30px;
+  }
+
+  nav a:nth-child(1) {
+    margin-right: 2vw;
+  }
+
+  nav a:nth-child(2) {
+    margin: 0 2vw;
+  }
+
+  nav a:nth-child(3) {
+    margin-left: 0 2vw;
+  }
+
+  .discovery {
+    width: 90%;
+    margin: 8vh auto 0 auto;
+  }
+
+  .discovery__wrapper {
+    display: block;
+  }
+
+  footer {
+    padding: 0;
+  }
+
+  footer span {
+    margin: auto;
+    font-size: 20px;
+  }
+}
