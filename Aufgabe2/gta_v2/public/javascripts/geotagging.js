@@ -118,7 +118,40 @@ class MapManager {
  */
 // ... your code here ...
 
+function updateLocation() {
+    LocationHelper.findLocation((locationHelper) => {
+        const latitude = locationHelper.latitude;
+        const longitude = locationHelper.longitude;
+
+        // change values to the current location
+        document.getElementById("latitude").value = latitude;
+        document.getElementById("longitude").value = longitude;
+        document.getElementById("currentLatitude").value = latitude;
+        document.getElementById("currentLongitude").value = longitude;
+
+        // get image element
+        const imgElement = document.querySelector(".discovery__map img");
+        // remove image element
+        mapPlaceholder.parentNode.removeChild(imgElement);
+        // get element query span
+        const descriptionParagraph = document.querySelector(".discovery__map span");
+        // remove span element
+        descriptionParagraph.parentNode.removeChild(descriptionParagraph);
+
+        const mapDiv = document.createElement("div");
+        mapDiv.id = "map";
+        const discoveryMap = document.querySelector(".discovery__map");
+        discoveryMap.appendChild(mapDiv);
+
+        // call initMap and updateMarkers functions
+        const mapManager = new MapManager();
+        mapManager.initMap(latitude, longitude);
+        mapManager.updateMarkers(latitude, longitude);
+    });
+}
+
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener("DOMContentLoaded", () => {
-    alert("Please change the script 'geotagging.js'");
+    // call function
+    updateLocation();
 });
