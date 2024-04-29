@@ -47,6 +47,7 @@ a {
 /* ### TODO ### Styles for other HTML elements */
 
 /* ... your code here ... */
+
 fieldset {
   margin-top: 2vh;
   padding: 2vh 1.5vw;
@@ -114,6 +115,7 @@ fieldset {
 /* ### TODO ### Styles for Header Component */
 
 /* ... your code here ... */
+
 header {
   background-color: whitesmoke;
   display: flex;
@@ -132,18 +134,14 @@ header img {
 /* ### TODO ### Styles for Main Component */
 
 /* ... your code here ... */
+
 main {
-  display: flex;
-  justify-content: space-around;
-  padding: 4vh 2vw;
+  padding: 4vh 4vw;
 }
 
 /* ### TODO ### Styles for Tagging component */
 
 /* ... your code here ... */
-.tagging {
-  width: 25%;
-}
 
 .tagging input {
   display: block;
@@ -159,9 +157,6 @@ main {
 /* ### TODO ### Styles for Discovery component */
 
 /* ... your code here ... */
-.discovery {
-  width: 65%;
-}
 
 .discovery input {
   display: block;
@@ -175,8 +170,6 @@ main {
 }
 
 .discovery__wrapper {
-  display: flex;
-  justify-content: space-between;
   margin-top: 3vh;
 }
 
@@ -198,6 +191,7 @@ li {
 /* ### TODO ### Styles for Footer Component */
 
 /* ... your code here ... */
+
 footer {
   background-color: whitesmoke;
   display: flex;
@@ -211,6 +205,7 @@ footer {
 /* ### TODO ### Media Queries */
 
 /* ... your code here ... */
+
 @media only screen and (max-width: 430px) {
   header {
     display: block;
@@ -220,7 +215,6 @@ footer {
   }
 
   main {
-    display: flex;
     flex-direction: column;
   }
 
@@ -280,7 +274,11 @@ footer {
   }
 
   .discovery__wrapper {
-    display: block;
+    flex-direction: column;
+  }
+
+  .discovery__taglist, .discovery__map {
+    width: 100%;
   }
 
   footer {
