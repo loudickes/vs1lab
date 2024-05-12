@@ -121,9 +121,9 @@ class MapManager {
 function updateLocation() {
     LocationHelper.findLocation((locationHelper) => {
         // get current latitude
-        const latitude = locationHelper.latitude;
+        let latitude = locationHelper.latitude;
         // get current longitude
-        const longitude = locationHelper.longitude;
+        let longitude = locationHelper.longitude;
 
         // change values to the current location
         document.getElementById("latitude").value = latitude;
@@ -131,29 +131,29 @@ function updateLocation() {
         document.getElementById("currentLatitude").value = latitude;
         document.getElementById("currentLongitude").value = longitude;
 
-        // get image element
-        const imgElement = document.querySelector(".discovery__map img");
-        // remove image element
-        imgElement.parentNode.removeChild(imgElement);
+        let contentElement = document.querySelector('.discovery__map');
 
         // create div element
-        const mapDiv = document.createElement("div");
+        let mapDiv = document.createElement("div");
         // set id for div
         mapDiv.id = "map";
-        
-        // select element with the specific class
-        const discoveryMap = document.querySelector(".discovery__map");
         // add div
-        discoveryMap.appendChild(mapDiv);
+        contentElement.appendChild(mapDiv);
 
-        const mapManager = new MapManager();
+        // create object
+        let mapManager = new MapManager();
         // call initMap function
         mapManager.initMap(latitude, longitude);
         // call updateMarkers function
         mapManager.updateMarkers(latitude, longitude);
 
-        // get p element inside the specific class
-        let paragraph = document.querySelector('.discovery__map p');
+        // get img element
+        let image = contentElement.querySelector("img");
+        // remove img element
+        image.parentNode.removeChild(image);
+
+        // get p element
+        let paragraph = contentElement.querySelector('p');
         // remove p element
         paragraph.parentNode.removeChild(paragraph);
     });
