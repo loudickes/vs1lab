@@ -120,7 +120,9 @@ class MapManager {
 
 function updateLocation() {
     LocationHelper.findLocation((locationHelper) => {
+        // get current latitude
         const latitude = locationHelper.latitude;
+        // get current longitude
         const longitude = locationHelper.longitude;
 
         // change values to the current location
@@ -132,21 +134,28 @@ function updateLocation() {
         // get image element
         const imgElement = document.querySelector(".discovery__map img");
         // remove image element
-        mapPlaceholder.parentNode.removeChild(imgElement);
-        // get element query span
-        const descriptionParagraph = document.querySelector(".discovery__map span");
-        // remove span element
-        descriptionParagraph.parentNode.removeChild(descriptionParagraph);
+        imgElement.parentNode.removeChild(imgElement);
 
+        // create div element
         const mapDiv = document.createElement("div");
+        // set id for div
         mapDiv.id = "map";
+        
+        // select element with the specific class
         const discoveryMap = document.querySelector(".discovery__map");
+        // add div
         discoveryMap.appendChild(mapDiv);
 
-        // call initMap and updateMarkers functions
         const mapManager = new MapManager();
+        // call initMap function
         mapManager.initMap(latitude, longitude);
+        // call updateMarkers function
         mapManager.updateMarkers(latitude, longitude);
+
+        // get p element inside the specific class
+        let paragraph = document.querySelector('.discovery__map p');
+        // remove p element
+        paragraph.parentNode.removeChild(paragraph);
     });
 }
 
