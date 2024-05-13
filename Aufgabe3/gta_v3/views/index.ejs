@@ -65,8 +65,8 @@
                         <label for="searchterm">Search term or keywords:</label>
                         <input type="text" id="searchterm" placeholder="e.g. Berlin">
 
-                        <input type="hidden" id="currentLatitude" name="currentLatitude" value="">
-                        <input type="hidden" id="currentLongitude" name="currentLongitude" value="">
+                        <input type="hidden" id="hiddenLatitude" name="hiddenLatitude" value="">
+                        <input type="hidden" id="hiddenLongitude" name="hiddenLongitude" value="">
 
                         <input type="submit" value="Search">
                     </fieldset>
@@ -85,7 +85,7 @@
                         </ul>
                     </div>
 
-                    <div class="discovery__map col-7">
+                    <div class="discovery__map col-7" id="map">
                         <img src="./images/mapview.jpg" alt="a map with locations" id="mapView" />
                         <span>Result map</span>
                     </div>

@@ -128,17 +128,10 @@ function updateLocation() {
         // change values to the current location
         document.getElementById("latitude").value = latitude;
         document.getElementById("longitude").value = longitude;
-        document.getElementById("currentLatitude").value = latitude;
-        document.getElementById("currentLongitude").value = longitude;
+        document.getElementById("hiddenLatitude").value = latitude;
+        document.getElementById("hiddenLongitude").value = longitude;
 
         let contentElement = document.querySelector('.discovery__map');
-
-        // create div element
-        let mapDiv = document.createElement("div");
-        // set id for div
-        mapDiv.id = "map";
-        // add div
-        contentElement.appendChild(mapDiv);
 
         // create object
         let mapManager = new MapManager();
@@ -153,7 +146,7 @@ function updateLocation() {
         image.parentNode.removeChild(image);
 
         // get p element
-        let paragraph = contentElement.querySelector('p');
+        let paragraph = contentElement.querySelector('span');
         // remove p element
         paragraph.parentNode.removeChild(paragraph);
     });
