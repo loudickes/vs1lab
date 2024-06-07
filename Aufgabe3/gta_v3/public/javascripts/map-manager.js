@@ -58,3 +58,6 @@
         }
     }
 }
+
+//Exportieren für den Import in anderen Dateien
+export { MapManager };

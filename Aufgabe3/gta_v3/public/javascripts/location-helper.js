@@ -57,3 +57,6 @@ class LocationHelper {
         });
     }
 }
+
+//Exportieren für den Import in anderen Dateien
+export { LocationHelper };
