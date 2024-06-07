@@ -85,7 +85,9 @@
                         </ul>
                     </div>
 
-                    <div class="discovery__map col-7" id="map">
+                    <!--Das data-tags-Attribut wird dem <div>-Element mit der ID map hinzugefügt.
+                        Dieses Array wird der updateMarkers-Methode übergeben, um die Marker auf der Karte zu aktualisieren.-->
+                    <div class="discovery__map col-7" id="map" data-tags='<%= JSON.stringify(taglist) %>'>
                         <img src="./images/mapview.jpg" alt="a map with locations" id="mapView" />
                         <span>Result map</span>
                     </div>
