@@ -1,4 +1,4 @@
-// File origin: VS1LAB A3
+// geotag.js
 
 /**
  * This script is a template for exercise VS1lab/Aufgabe3
@@ -10,9 +10,12 @@
  * GeoTag objects should contain at least all fields of the tagging form.
  */
 class GeoTag {
-
-    // TODO: ... your code here ...
-    
+    constructor(name, latitude, longitude, hashtag) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.hashtag = hashtag;
+    }
 }
 
 module.exports = GeoTag;
