@@ -12,9 +12,6 @@
 
 const express = require('express');
 const router = express.Router();
-const GeoTag = require('../models/geotag');
-const InMemoryGeoTagStore = require('../models/geotag-store');
-const GeoTagExamples = require('../models/geotag-examples');
 
 /**
  * The module "geotag" exports a class GeoTagStore. 
@@ -24,6 +21,7 @@ const GeoTagExamples = require('../models/geotag-examples');
  */
 // eslint-disable-next-line no-unused-vars
 
+const GeoTag = require('../models/geotag');
 
 /**
  * The module "geotag-store" exports a class GeoTagStore. 
@@ -33,7 +31,13 @@ const GeoTagExamples = require('../models/geotag-examples');
  */
 // eslint-disable-next-line no-unused-vars
 
-const geoTagStore = GeoTagExamples.populateStore();
+const GeoTagStore = require('../models/geotag-store');
+const GeoTagExamples = require('../models/geotag-examples');
+
+// Create an instance of the GeoTagStore to store geotags in memory.
+const store = new GeoTagStore();
+// Populate the store with example geotags from GeoTagExamples.
+GeoTagExamples.tagList.forEach(tag => store.addGeoTag(tag));
 
 /**
  * Route '/' for HTTP 'GET' requests.
@@ -46,8 +50,10 @@ const geoTagStore = GeoTagExamples.populateStore();
 
 // TODO: extend the following route example if necessary
 
+// Define a route for GET requests to the root URL ('/').
 router.get('/', (req, res) => {
-  res.render('index', { taglist: [], latitude: '', longitude: '' });
+  // Render the 'index' template with an empty taglist.
+  res.render('index', { taglist: [] });
 });
 
 /**
@@ -65,13 +71,18 @@ router.get('/', (req, res) => {
  * by radius around a given location.
  */
 
+// Define a route for POST requests to '/tagging'.
 router.post('/tagging', (req, res) => {
+   // Extract name, latitude, longitude, and hashtag from the request body.
   const { name, latitude, longitude, hashtag } = req.body;
+  // Create a new GeoTag object with the provided data.
   const newGeoTag = new GeoTag(name, latitude, longitude, hashtag);
-  geoTagStore.addGeoTag(newGeoTag);
-
-  const nearbyGeoTags = geoTagStore.getNearbyGeoTags(latitude, longitude, 5); // 5 km radius for example
-  res.render('index', { taglist: nearbyGeoTag, latitude, longitude});
+   // Add the new geotag to the store.
+  store.addGeoTag(newGeoTag);
+  // Get geotags that are within a radius of 5 units from the new geotag's location.
+  const nearbyTags = store.getNearbyGeoTags(latitude, longitude);
+  // Render the 'index' template with the list of nearby geotags.
+  res.render('index', { taglist: nearbyTags });
 });
 
 /**
@@ -90,17 +101,11 @@ router.post('/tagging', (req, res) => {
  * by radius and keyword.
  */
 
+// Define a route for POST requests to '/discovery'.
 router.post('/discovery', (req, res) => {
-  const { latitude, longitude, searchTerm } = req.body;
-  let geoTags;
-
-  if (searchTerm) {
-      geoTags = geoTagStore.searchNearbyGeoTags(latitude, longitude, 5, searchTerm); // 5 km radius for example
-  } else {
-      geoTags = geoTagStore.getNearbyGeoTags(latitude, longitude, 5); // 5 km radius for example
-  }
-
-  res.render('index', { taglist: geoTags, latitude, longitude });
+  const { latitude, longitude, keyword } = req.body;
+  const searchResults = store.searchNearbyGeoTags(latitude, longitude, 1, keyword);
+  res.render('index', { taglist: searchResults });
 });
 
 module.exports = router;
