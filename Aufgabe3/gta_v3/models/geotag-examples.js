@@ -12,8 +12,6 @@
  * 
  */
 
-const GeoTag = require('./geotag');
-
 class GeoTagExamples {
     /**
      * Provides some geoTag data

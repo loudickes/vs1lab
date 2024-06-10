@@ -32,12 +32,12 @@ const GeoTag = require('../models/geotag');
 // eslint-disable-next-line no-unused-vars
 
 const GeoTagStore = require('../models/geotag-store');
-const GeoTagExamples = require('../models/geotag-examples');
 
-// Create an instance of the GeoTagStore to store geotags in memory.
-const store = new GeoTagStore();
-// Populate the store with example geotags from GeoTagExamples.
-GeoTagExamples.tagList.forEach(tag => store.addGeoTag(tag));
+const geoTagStore = new GeoTagStore();
+const GeoTagExamples = require('../models/geotag-examples');
+const exampleTags = GeoTagExamples.tagList.map(tag => new GeoTag(...tag));
+exampleTags.forEach(tag => geoTagStore.addGeoTag(tag));
+
 
 /**
  * Route '/' for HTTP 'GET' requests.
@@ -74,13 +74,13 @@ router.get('/', (req, res) => {
 // Define a route for POST requests to '/tagging'.
 router.post('/tagging', (req, res) => {
    // Extract name, latitude, longitude, and hashtag from the request body.
-  const { name, latitude, longitude, hashtag } = req.body;
+  const { latitude, longitude, name, hashtag } = req.body;
   // Create a new GeoTag object with the provided data.
-  const newGeoTag = new GeoTag(name, latitude, longitude, hashtag);
+  const newGeoTag = new GeoTag(latitude, longitude, name, hashtag);
    // Add the new geotag to the store.
-  store.addGeoTag(newGeoTag);
+  geoTagStore.addGeoTag(newGeoTag);
   // Get geotags that are within a radius of 5 units from the new geotag's location.
-  const nearbyTags = store.getNearbyGeoTags(latitude, longitude);
+  const nearbyTags = geoTagStore.getNearbyGeoTags(latitude, longitude, 100);
   // Render the 'index' template with the list of nearby geotags.
   res.render('index', { taglist: nearbyTags });
 });
@@ -103,9 +103,16 @@ router.post('/tagging', (req, res) => {
 
 // Define a route for POST requests to '/discovery'.
 router.post('/discovery', (req, res) => {
-  const { latitude, longitude, keyword } = req.body;
-  const searchResults = store.searchNearbyGeoTags(latitude, longitude, 1, keyword);
-  res.render('index', { taglist: searchResults });
+  const { latitude, longitude, searchterm } = req.body;
+  let results;
+
+  if (searchterm) {
+    results = geoTagStore.searchNearbyGeoTags(latitude, longitude, 100, searchterm);
+  } else {
+    results = geoTagStore.getNearbyGeoTags(latitude, longitude, 100);
+  }
+
+  res.render('index', { taglist: results });
 });
 
 module.exports = router;

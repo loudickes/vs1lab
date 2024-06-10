@@ -24,22 +24,20 @@
  * - Keyword matching should include partial matches from name or hashtag fields. 
  */
 
-const GeoTag = require('./geotag');
-
 class InMemoryGeoTagStore {
     // Constructor to initialize the geotag store.
     constructor() {
         // Initialize an empty array to store the geotags.
-        this.geotags = [];
+        this.geoTags = [];
     }
 
     /**
      * Adds a geotag to the store.
-     * @param {GeoTag} geotag - The geotag to add
+     * @param {GeoTag} geoTag - The geotag to add
      */
-    addGeoTag(geotag) {
+    addGeoTag(geoTag) {
         // Add the given geotag to the array.
-        this.geotags.push(geotag);
+        this.geoTags.push(geoTag);
     }
 
     /**
@@ -48,7 +46,7 @@ class InMemoryGeoTagStore {
      */
     removeGeoTag(name) {
         // Filter the array to remove the geotag with the specified name.
-        this.geotags = this.geotags.filter(tag => tag.name !== name);
+        this.geoTags = this.geoTags.filter(tag => tag.name !== name);
     }
 
     /**
@@ -58,8 +56,11 @@ class InMemoryGeoTagStore {
      * @param {number} radius - The radius to search within
      * @returns {GeoTag[]} - Array of geotags in proximity
      */
-    getNearbyGeoTags(latitude, longitude, radius = 1) {
-        return this.geoTags.filter(tag => this._getDistance(tag.latitude, tag.longitude, latitude, longitude) <= radius);
+    getNearbyGeoTags(latitude, longitude, radius) {
+        return this.geoTags.filter(tag => {
+            const distance = Math.sqrt(Math.pow(tag.latitude - latitude, 2) + Math.pow(tag.longitude - longitude, 2));
+            return distance <= radius;
+        });
     }
 
     /**
@@ -71,17 +72,11 @@ class InMemoryGeoTagStore {
      * @returns {GeoTag[]} - Array of geotags matching the keyword in proximity
      */
     searchNearbyGeoTags(latitude, longitude, radius, keyword) {
-        return this.getNearbyGeoTags(latitude, longitude, radius).filter(tag => tag.name.includes(keyword) || tag.hashtag.includes(keyword));
-    }
-
-    _getDistance(lat1, lon1, lat2, lon2) {
-        const toRad = x => x * Math.PI / 180;
-        const R = 6371; // Radius of the Earth in km
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
+        return this.geoTags.filter(tag => {
+            const distance = Math.sqrt(Math.pow(tag.latitude - latitude, 2) + Math.pow(tag.longitude - longitude, 2));
+            const matchesKeyword = tag.name.includes(keyword) || tag.hashtag.includes(keyword);
+            return distance <= radius && matchesKeyword;
+        });
     }
 }
 
