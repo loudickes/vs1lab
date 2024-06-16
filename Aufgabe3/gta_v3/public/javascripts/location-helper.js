@@ -54,6 +54,10 @@ class LocationHelper {
             callback(helper);
         }, (error) => {
             alert(error.message)
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
         });
     }
 }

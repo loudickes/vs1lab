@@ -13,6 +13,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 /**
  * The module "geotag" exports a class GeoTagStore. 
  * It represents geotags.
@@ -30,6 +31,14 @@ const GeoTag = require('../models/geotag');
  */
 // eslint-disable-next-line no-unused-vars
 const GeoTagStore = require('../models/geotag-store');
+const GeoTagExamples = require('../models/geotag-examples');
+
+const { tagList } = require('../models/geotag-examples');
+
+
+
+const geoTagStore = new GeoTagStore();     
+GeoTagExamples.populateStore(geoTagStore); //populate the store with the example data
 
 /**
  * Route '/' for HTTP 'GET' requests.
@@ -37,12 +46,25 @@ const GeoTagStore = require('../models/geotag-store');
  *
  * Requests cary no parameters
  *
- * As response, the ejs-template is rendered without geotag objects.
+ * As response, the ejs-template is rendered without geotag objects.#
  */
 
 // TODO: extend the following route example if necessary
 router.get('/', (req, res) => {
-  res.render('index', { taglist: [] })
+  // Rendern der Seite mit den GeoTags und Koordinaten
+  res.render('index', { taglist: geoTagStore.getAllGeoTags(), latitude, longitude }); //inserts all geotag examples that got populated before into the taglist that get stored as jsons now
+});
+
+
+/* ALTERNATIVE VERSION WO MAN AM ANFANG DIE GEOTAGS IN SEINER UMGEBUNG ANGEZEIGT BEKOMMT
+router.get('/', (req, res) => {
+  res.render('index', { taglist: geoTagStore.getAllGeoTags(), nearbyTags: [], latitude: "", longitude: "" });
+});
+
+router.get('/nearby-geotags', (req, res) => {
+    const { latitude, longitude } = req.query;
+    const nearbyTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 1);
+    res.json(nearbyTags);
 });
 
 /**
@@ -62,6 +84,16 @@ router.get('/', (req, res) => {
 
 // TODO: ... your code here ...
 
+router.post('/tagging', (req, res) => {
+  const { latitude, longitude, name, hashtag } = req.body;
+  
+  const newGeoTag = new GeoTag(parseFloat(latitude), parseFloat(longitude), name, hashtag);
+  geoTagStore.addGeoTag(newGeoTag);
+
+  const nearbyTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 6);
+  res.render('index', {taglist: nearbyTags, latitude, longitude });
+});
+
 /**
  * Route '/discovery' for HTTP 'POST' requests.
  * (http://expressjs.com/de/4x/api.html#app.post.method)
@@ -80,4 +112,28 @@ router.get('/', (req, res) => {
 
 // TODO: ... your code here ...
 
+router.post('/discovery', (req, res) => {
+  const { latitude, longitude, searchterm } = req.body;
+
+  let foundTags;
+  if (searchterm) {
+    foundTags = geoTagStore.searchNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 10, searchterm);
+  } else {
+    foundTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 10);
+  }
+
+  let newLatitude = latitude;
+  let newLongitude = longitude;
+
+  // If found tags exist, update the latitude and longitude to the first result
+  if (foundTags.length > 0) {
+    newLatitude = foundTags[0].latitude;
+    newLongitude = foundTags[0].longitude;
+  }
+
+  res.render('index', { taglist: foundTags, latitude: newLatitude, longitude: newLongitude });
+});
+
+
 module.exports = router;
+
