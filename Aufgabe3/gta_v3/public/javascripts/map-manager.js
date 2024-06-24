@@ -46,15 +46,43 @@
     * @param {{latitude, longitude, name}[]} tags The map tags, defaults to just the current location
     */
     updateMarkers(latitude, longitude, tags = []) {
-        // delete all markers
         this.#markers.clearLayers();
-        L.marker([latitude, longitude], { icon: this.#defaultIcon })
+        L.marker([latitude, longitude], { icon: this.#defaultIcon } )
             .bindPopup("Your Location")
             .addTo(this.#markers);
         for (const tag of tags) {
-            L.marker([tag.location.latitude,tag.location.longitude], { icon: this.#defaultIcon })
-                .bindPopup(tag.name)
-                .addTo(this.#markers);  
+            L.marker([tag.latitude, tag.longitude], { icon: this.#defaultIcon }) 
+                .bindPopup(`<b>${tag.name}</b><br>${tag.hashtag}`)
+                .addTo(this.#markers);
         }
-    }
+    }/*
+        updateMarkers(latitude, longitude, tags = []) {
+            // delete all markers
+            this.#markers.clearLayers();
+            L.marker([latitude, longitude], { icon: this.#defaultIcon })
+                .bindPopup("Your Location")
+                .addTo(this.#markers);
+            for (const tag of tags) {
+                L.marker([tag.location.latitude,tag.location.longitude], { icon: this.#defaultIcon })
+                    .bindPopup(tag.name)
+                    .addTo(this.#markers);  
+            }
+        }*//*
+        updateMarkers(latitude, longitude, tags = []) {
+            // delete all markers
+            this.#markers.clearLayers();
+            L.marker([latitude, longitude])
+                .bindPopup("Your Location")
+                .addTo(this.#markers);
+            for (const tag of tags) {
+                L.marker([tag.location.latitude,tag.location.longitude])
+                    .bindPopup(tag.name)
+                    .addTo(this.#markers);  
+            }
+        }*/
 }
+   
+   
+
+//Exportieren für den Import in anderen Dateien
+export { MapManager };

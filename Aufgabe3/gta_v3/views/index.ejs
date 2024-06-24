@@ -11,6 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GeoTagApp</title>
         <link rel="stylesheet" href="./stylesheets/style.css" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
 
@@ -34,16 +35,18 @@
                     <fieldset>
                         <legend>Add a new GeoTag</legend>
                         <label for="latitude">Latitude:</label>
-                        <input type="text" id="latitude" name="latitude" value="49.01379" disabled>
-
+                        <input type="text" id="latitude_display" name="latitude_display" value="<%= latitude %>" disabled>
+                        <input type="hidden" id="hiddenLatitude" name="latitude" value="<%= latitude %>">
+                        
                         <label for="longitude">Longitude:</label>
-                        <input type="text" id="longitude" name="longitude" value="8.390071" disabled>
+                        <input type="text" id="longitude_display" name="longitude_dispay" value="<%= longitude %>" disabled>
+                        <input type="hidden" id="hiddenLongitude" name="longitude" value="<%= longitude %>">
 
                         <label for="name">Name:</label>
                         <input type="text" id="name" name="name" placeholder="e.g. Central Berlin" maxlength="10" required>
 
                         <label for="hashtag">Hastag:</label>
-                        <input type="text" id="hashtag" name="hashtag" placeholder="e.g. #ber" pattern="#.{1-10}" maxlength="11">
+                        <input type="text" id="hashtag" name="hashtag" placeholder="e.g. #ber" pattern="#.{1,10}" maxlength="11">
 
                         <input type="submit" value="Add Tag">
                     </fieldset>
@@ -65,8 +68,8 @@
                         <label for="searchterm">Search term or keywords:</label>
                         <input type="text" id="searchterm" name="searchterm" placeholder="e.g. Berlin">
 
-                        <input type="hidden" id="hiddenLatitude" name="hiddenLatitude" value="">
-                        <input type="hidden" id="hiddenLongitude" name="hiddenLongitude" value="">
+                        <input type="hidden" id="hiddenLatitude" name="latitude" value="<%= latitude %>">
+                        <input type="hidden" id="hiddenLongitude" name="longitude" value="<%= longitude %>">
 
                         <input type="submit" value="Search">
                     </fieldset>
@@ -77,13 +80,17 @@
                 <div class="discovery__wrapper row">
                     <div class="discovery__taglist col-5">
                         <ul class="discovery__results" id="discoveryResults">
+                            <!-- TODO: HTML AUS AUFGABE2 HIERHER KOPIEREN UND DIE BEISPIEL-EINTRÄGE DER DISCOVERY-LISTE MIT DEN FOLGENDEN ZEILEN ERSETZEN -->
+
                             <% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
-                                <li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
+                                <li><%= gtag.name %> (<%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
                             <% }); %>
                         </ul>
                     </div>
 
-                    <div class="discovery__map col-7" id="map" data-tags='<%= JSON.stringify(taglist) %>'>
+                    <!--Das data-tags-Attribut wird dem <div>-Element mit der ID map hinzugefügt.
+                        Dieses Array wird der updateMarkers-Methode übergeben, um die Marker auf der Karte zu aktualisieren.-->
+                    <div class="discovery__map col-7" id="map" data-tags='<%= JSON.stringify(taglist) %>'>  <!-- Writes the arrray with the geotag objects from the server into the div element as JSOn Strings-->
                         <img src="./images/mapview.jpg" alt="a map with locations" id="mapView" />
                         <span>Result map</span>
                     </div>
@@ -96,7 +103,9 @@
             <span>(c) 2021/22 HKA_IWI_VSYS</span>
         </footer>
 
-        <script src="./javascripts/geotagging.js"></script>
+        <script type="module" src="./javascripts/geotagging.js"></script>
+        <script type="module" src="./javascripts/location-helper.js"></script>
+        <script type="module" src="./javascripts/map-manager.js"></script>
     </body>
 
 </html>

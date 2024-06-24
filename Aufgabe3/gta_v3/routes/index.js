@@ -1,4 +1,4 @@
-// index.js
+// File origin: VS1LAB A3
 
 /**
  * This script defines the main router of the GeoTag server.
@@ -13,6 +13,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 /**
  * The module "geotag" exports a class GeoTagStore. 
  * It represents geotags.
@@ -20,7 +21,6 @@ const router = express.Router();
  * TODO: implement the module in the file "../models/geotag.js"
  */
 // eslint-disable-next-line no-unused-vars
-
 const GeoTag = require('../models/geotag');
 
 /**
@@ -30,37 +30,50 @@ const GeoTag = require('../models/geotag');
  * TODO: implement the module in the file "../models/geotag-store.js"
  */
 // eslint-disable-next-line no-unused-vars
-
 const GeoTagStore = require('../models/geotag-store');
-
-const geoTagStore = new GeoTagStore();
 const GeoTagExamples = require('../models/geotag-examples');
-const exampleTags = GeoTagExamples.tagList.map(tag => new GeoTag(...tag));
-exampleTags.forEach(tag => geoTagStore.addGeoTag(tag));
 
+const { tagList } = require('../models/geotag-examples');
+
+
+
+const geoTagStore = new GeoTagStore();     
+GeoTagExamples.populateStore(geoTagStore); //populate the store with the example data
 
 /**
  * Route '/' for HTTP 'GET' requests.
  * (http://expressjs.com/de/4x/api.html#app.get.method)
  *
- * Requests carry no parameters
+ * Requests cary no parameters
  *
- * As response, the ejs-template is rendered without geotag objects.
+ * As response, the ejs-template is rendered without geotag objects.#
  */
 
 // TODO: extend the following route example if necessary
-
-// Define a route for GET requests to the root URL ('/').
 router.get('/', (req, res) => {
-  // Render the 'index' template with an empty taglist.
-  res.render('index', { taglist: [] });
+  const latitude = "";
+  const longitude = "";
+  // Rendern der Seite mit den GeoTags und Koordinaten
+  res.render('index', { taglist: geoTagStore.getAllGeoTags(), latitude, longitude }); //inserts all geotag examples that got populated before into the taglist that get stored as jsons now
+});
+
+
+/* ALTERNATIVE VERSION WO MAN AM ANFANG DIE GEOTAGS IN SEINER UMGEBUNG ANGEZEIGT BEKOMMT
+router.get('/', (req, res) => {
+  res.render('index', { taglist: geoTagStore.getAllGeoTags(), nearbyTags: [], latitude: "", longitude: "" });
+});
+
+router.get('/nearby-geotags', (req, res) => {
+    const { latitude, longitude } = req.query;
+    const nearbyTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 1);
+    res.json(nearbyTags);
 });
 
 /**
  * Route '/tagging' for HTTP 'POST' requests.
  * (http://expressjs.com/de/4x/api.html#app.post.method)
  *
- * Requests carry the fields of the tagging form in the body.
+ * Requests cary the fields of the tagging form in the body.
  * (http://expressjs.com/de/4x/api.html#req.body)
  *
  * Based on the form data, a new geotag is created and stored.
@@ -71,25 +84,23 @@ router.get('/', (req, res) => {
  * by radius around a given location.
  */
 
-// Define a route for POST requests to '/tagging'.
+// TODO: ... your code here ...
+
 router.post('/tagging', (req, res) => {
-   // Extract name, latitude, longitude, and hashtag from the request body.
   const { latitude, longitude, name, hashtag } = req.body;
-  // Create a new GeoTag object with the provided data.
-  const newGeoTag = new GeoTag(latitude, longitude, name, hashtag);
-   // Add the new geotag to the store.
+  
+  const newGeoTag = new GeoTag(parseFloat(latitude), parseFloat(longitude), name, hashtag);
   geoTagStore.addGeoTag(newGeoTag);
-  // Get geotags that are within a radius of 5 units from the new geotag's location.
-  const nearbyTags = geoTagStore.getNearbyGeoTags(latitude, longitude, 100);
-  // Render the 'index' template with the list of nearby geotags.
-  res.render('index', { taglist: nearbyTags });
+
+  const nearbyTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 6);
+  res.render('index', {taglist: nearbyTags, latitude, longitude });
 });
 
 /**
  * Route '/discovery' for HTTP 'POST' requests.
  * (http://expressjs.com/de/4x/api.html#app.post.method)
  *
- * Requests carry the fields of the discovery form in the body.
+ * Requests cary the fields of the discovery form in the body.
  * This includes coordinates and an optional search term.
  * (http://expressjs.com/de/4x/api.html#req.body)
  *
@@ -101,18 +112,30 @@ router.post('/tagging', (req, res) => {
  * by radius and keyword.
  */
 
-// Define a route for POST requests to '/discovery'.
+// TODO: ... your code here ...
+
 router.post('/discovery', (req, res) => {
   const { latitude, longitude, searchterm } = req.body;
-  let results;
 
+  let foundTags;
   if (searchterm) {
-    results = geoTagStore.searchNearbyGeoTags(latitude, longitude, 100, searchterm);
+    foundTags = geoTagStore.searchNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 10, searchterm);
   } else {
-    results = geoTagStore.getNearbyGeoTags(latitude, longitude, 100);
+    foundTags = geoTagStore.getNearbyGeoTags(parseFloat(latitude), parseFloat(longitude), 10);
   }
 
-  res.render('index', { taglist: results });
+  let newLatitude = latitude;
+  let newLongitude = longitude;
+
+  // If found tags exist, update the latitude and longitude to the first result
+  if (foundTags.length > 0) {
+    newLatitude = foundTags[0].latitude;
+    newLongitude = foundTags[0].longitude;
+  }
+
+  res.render('index', { taglist: foundTags, latitude: newLatitude, longitude: newLongitude });
 });
 
+
 module.exports = router;
+

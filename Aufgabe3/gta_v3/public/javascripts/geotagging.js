@@ -4,152 +4,82 @@
 
 // This script is executed when the browser loads index.html.
 
+// Die Klassen aus den separaten Skripten importieren
+import { LocationHelper } from './location-helper.js';
+import { MapManager } from './map-manager.js';
+
 // "console.log" writes to the browser's console. 
 // The console window must be opened explicitly in the browser.
 // Try to find this output in the browser...
 console.log("The geoTagging script is going to start...");
 
 /**
-  * A class to help using the HTML5 Geolocation API.
-  */
-class LocationHelper {
-    // Location values for latitude and longitude are private properties to protect them from changes.
-    #latitude = '';
-
-    /**
-     * Getter method allows read access to privat location property.
-     */
-    get latitude() {
-        return this.#latitude;
-    }
-
-    #longitude = '';
-
-    get longitude() {
-        return this.#longitude;
-    }
-
-   /**
-    * Create LocationHelper instance if coordinates are known.
-    * @param {string} latitude 
-    * @param {string} longitude 
-    */
-   constructor(latitude, longitude) {
-       this.#latitude = (parseFloat(latitude)).toFixed(5);
-       this.#longitude = (parseFloat(longitude)).toFixed(5);
-   }
-
-    /**
-     * The 'findLocation' method requests the current location details through the geolocation API.
-     * It is a static method that should be used to obtain an instance of LocationHelper.
-     * Throws an exception if the geolocation API is not available.
-     * @param {*} callback a function that will be called with a LocationHelper instance as parameter, that has the current location details
-     */
-    static findLocation(callback) {
-        const geoLocationApi = navigator.geolocation;
-
-        if (!geoLocationApi) {
-            throw new Error("The GeoLocation API is unavailable.");
-        }
-
-        // Call to the HTML5 geolocation API.
-        // Takes a first callback function as argument that is called in case of success.
-        // Second callback is optional for handling errors.
-        // These callbacks are given as arrow function expressions.
-        geoLocationApi.getCurrentPosition((location) => {
-            // Create and initialize LocationHelper object.
-            let helper = new LocationHelper(location.coords.latitude, location.coords.longitude);
-            // Pass the locationHelper object to the callback.
-            callback(helper);
-        }, (error) => {
-           alert(error.message)
-        });
-    }
-}
-
-/**
- * A class to help using the Leaflet map service.
- */
-class MapManager {
-
-    #map
-    #markers
-
-    /**
-    * Initialize a Leaflet map
-    * @param {number} latitude The map center latitude
-    * @param {number} longitude The map center longitude
-    * @param {number} zoom The map zoom, defaults to 18
-    */
-    initMap(latitude, longitude, zoom = 18) {
-        // set up dynamic Leaflet map
-        this.#map = L.map('map').setView([latitude, longitude], zoom);
-        var mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-        L.tileLayer(
-            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; ' + mapLink + ' Contributors'}).addTo(this.#map);
-        this.#markers = L.layerGroup().addTo(this.#map);
-    }
-
-    /**
-    * Update the Markers of a Leaflet map
-    * @param {number} latitude The map center latitude
-    * @param {number} longitude The map center longitude
-    * @param {{latitude, longitude, name}[]} tags The map tags, defaults to just the current location
-    */
-    updateMarkers(latitude, longitude, tags = []) {
-        // delete all markers
-        this.#markers.clearLayers();
-        L.marker([latitude, longitude])
-            .bindPopup("Your Location")
-            .addTo(this.#markers);
-        for (const tag of tags) {
-            L.marker([tag.location.latitude,tag.location.longitude])
-                .bindPopup(tag.name)
-                .addTo(this.#markers);  
-        }
-    }
-}
-
-/**
  * TODO: 'updateLocation'
  * A function to retrieve the current location and update the page.
  * It is called once the page has been fully loaded.
  */
-// ... your code here ...
-
 function updateLocation() {
-    LocationHelper.findLocation((locationHelper) => {
-        // get current latitude
-        let latitude = locationHelper.latitude;
-        // get current longitude
-        let longitude = locationHelper.longitude;
+    // Get the latitude and longitude input fields
+    let latitudeInput = document.getElementById("latitude_display");
+    let longitudeInput = document.getElementById("longitude_display");
+    let hiddenLatitudeInput = document.getElementById("hiddenLatitude");
+    let hiddenLongitudeInput = document.getElementById("hiddenLongitude");
 
-        // change values to the current location
-        document.getElementById("latitude").value = latitude;
-        document.getElementById("longitude").value = longitude;
-        document.getElementById("hiddenLatitude").value = latitude;
-        document.getElementById("hiddenLongitude").value = longitude;
+    // Check if the input fields already have values
+    let latitude = hiddenLatitudeInput.value;
+    let longitude = hiddenLongitudeInput.value;
 
-        let contentElement = document.querySelector('.discovery__map');
+    if (!latitude || !longitude) {
+        // If the input fields are empty, find the current location
+        LocationHelper.findLocation((locationHelper) => {
+            // get current latitude and longitude
+            latitude = locationHelper.latitude;
+            longitude = locationHelper.longitude;
 
-        // create object
-        let mapManager = new MapManager();
-        // call initMap function
-        mapManager.initMap(latitude, longitude);
-        // call updateMarkers function
-        mapManager.updateMarkers(latitude, longitude);
+            // update input fields with the current location
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+            hiddenLatitudeInput.value = latitude;
+            hiddenLongitudeInput.value = longitude;
 
-        // get img element
-        let image = contentElement.querySelector("img");
-        // remove img element
+            // Update the map and markers
+            updateMapAndMarkers(latitude, longitude);
+        });
+    } else {
+        // If the input fields already have values, use them to update the map and markers
+        updateMapAndMarkers(latitude, longitude);
+    }
+}
+
+function updateMapAndMarkers(latitude, longitude) {
+    let contentElement = document.querySelector('.discovery__map');
+
+    // Extract the GeoTag data from the data-tags attribute
+    
+    let tagsJson = contentElement.getAttribute('data-tags');  //Client site extracts the JSON-String from data-tags out of the ejs template after it got added there
+    let tags = tagsJson ? JSON.parse(tagsJson) : [];          //converts JSON string into a javascript-Array
+    
+    // create object
+    let mapManager = new MapManager();
+
+    // call initMap function
+    mapManager.initMap(latitude, longitude);
+    // call updateMarkers function
+    mapManager.updateMarkers(latitude, longitude, tags);      //hands the current coordinates and the geotag-Array as a parameter to the updatemarkers method from mapManager class
+
+    // get img element
+    let image = contentElement.querySelector("img");
+    if (image) {
+        // remove img element if it exists
         image.parentNode.removeChild(image);
+    }
 
-        // get p element
-        let paragraph = contentElement.querySelector('span');
-        // remove p element
+    // get span element
+    let paragraph = contentElement.querySelector('span');
+    if (paragraph) {
+        // remove span element if it exists
         paragraph.parentNode.removeChild(paragraph);
-    });
+    }
 }
 
 // Wait for the page to fully load its DOM content, then call updateLocation
@@ -157,3 +87,73 @@ document.addEventListener("DOMContentLoaded", () => {
     // call function
     updateLocation();
 });
+
+
+/*
+//ALTERNATIVE VERSION IN DER MAN AM ANFANG BEIM LADEN DER SEITE DIE GEOTAGS IN SEINER UMGEBUNG SIEHT
+function updateLocation() {
+    // Get the latitude and longitude input fields
+    let latitudeInput = document.getElementById("latitude");
+    let longitudeInput = document.getElementById("longitude");
+    let hiddenLatitudeInput = document.getElementById("hiddenLatitude");
+    let hiddenLongitudeInput = document.getElementById("hiddenLongitude");
+
+    LocationHelper.findLocation((locationHelper) => {
+        // get current latitude and longitude
+        const latitude = locationHelper.latitude;
+        const longitude = locationHelper.longitude;
+
+        // update input fields with the current location
+        latitudeInput.value = latitude;
+        longitudeInput.value = longitude;
+        hiddenLatitudeInput.value = latitude;
+        hiddenLongitudeInput.value = longitude;
+
+        // Fetch nearby GeoTags and update the map
+        fetchNearbyGeoTagsAndUpdateMap(latitude, longitude);
+    });
+}
+
+function fetchNearbyGeoTagsAndUpdateMap(latitude, longitude) {
+    fetch(`/nearby-geotags?latitude=${latitude}&longitude=${longitude}`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateMapAndMarkers(latitude, longitude, data);
+    })
+    .catch(error => {
+        console.error('Error fetching nearby GeoTags:', error);
+    });
+}
+
+function updateMapAndMarkers(latitude, longitude, tags = []) {
+    let contentElement = document.querySelector('.discovery__map');
+
+    // create object
+    let mapManager = new MapManager();
+    // call initMap function
+    mapManager.initMap(latitude, longitude);
+    // call updateMarkers function
+    mapManager.updateMarkers(latitude, longitude, tags);
+
+    // get img element
+    let image = contentElement.querySelector("img");
+    if (image) {
+        // remove img element if it exists
+        image.parentNode.removeChild(image);
+    }
+
+    // get span element
+    let paragraph = contentElement.querySelector('span');
+    if (paragraph) {
+        // remove span element if it exists
+        paragraph.parentNode.removeChild(paragraph);
+    }
+}
+
+// Wait for the page to fully load its DOM content, then call updateLocation
+document.addEventListener("DOMContentLoaded", () => {
+    updateLocation();
+});
+*/

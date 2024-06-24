@@ -14,7 +14,6 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
-
 const indexRouter = require('./routes/index');
 
 /**
@@ -43,6 +42,7 @@ app.use(express.urlencoded({ extended: false }));
  */
 
 // TODO: ... your code here ...
+app.use(express.static(path.join(__dirname, 'public'))); //*************************** *//path to display static content set to the public path
 
 app.use(express.static(path.join(__dirname, 'public')));
 
