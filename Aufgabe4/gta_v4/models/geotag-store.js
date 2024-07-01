@@ -28,10 +28,12 @@ class InMemoryGeoTagStore{
     // constructor to initialize an empty array to store the geotags
     constructor() {
         this.geoTags = [];
+        this.nextId = 1;
     }
 
     // add a Geotag with push command, "push" will attach an object at the end of an array
     addGeoTag(geoTag) {
+        geoTag.id = this.nextId++;
         this.geoTags.push(geoTag);
     }
 
@@ -70,41 +72,28 @@ class InMemoryGeoTagStore{
         return distance <= radius * 1000; // convert radius to meters and checks if the distance between the two points is within the given radius
     }
 
-
-    /*searchNearbyGeoTags(latitude, longitude, radius, keyword) {
-        const lat = parseFloat(latitude);
-        const lon = parseFloat(longitude);
-        return this.geoTags.filter(tag => this._iswithinRadius(tag, lat, lon, radius) && 
-        (tag.name.includes(keyword) || tag.hashtag.includes(keyword)));
+    getGeoTagById(id) {
+        return this.geoTags.find(tag => tag.id === parseInt(id));
     }
 
-    getAllGeoTags() {
-        return this.geoTags;
+    updateGeoTag(id, updatedGeoTag) {
+        const index = this.geoTags.findIndex(tag => tag.id === parseInt(id));
+        if (index !== -1) {
+            this.geoTags[index] = { id: parseInt(id), ...updatedGeoTag };
+            return true;
+        }
+        return false;
     }
- /*
-    _iswithinRadius(tag, latitude, longitude, radius) {
-        const distance = this._calculateDistance(tag.latitude, tag.longitude, latitude, longitude);
-        return distance <= radius;
+
+    deleteGeoTag(id) {
+        const index = this.geoTags.findIndex(tag => tag.id === parseInt(id));
+        if (index !== -1) {
+            this.geoTags.splice(index, 1);
+            return true;
+        }
+        return false;
     }
-
-    _calculateDistance(lat1, lon1, lat2, lon2) {
-        const toRad = (value) => value * Math.PI / 180;
-        const R = 6371; //Earth radius in km
-
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-    }*/
-
-
-
 }
 
 module.exports = InMemoryGeoTagStore
+
